@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Regalos Preferidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .list-container {
+            margin-top: 20px;
+        }
+        .list-item {
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-right: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .btn {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Escribe tu nombre y tus tres opciones de regalos preferidos</h1>
+
+	<p>Fecha: 24 de diciembre</p>
+<p>Valor regalo: $10</p>
+<p>Lugar: Casa mamita Faby y Huguito</p>
+
+<p>NOTA: Recuerda entregar a tu amigo/a secreto solo 1 de las opciones que se escriban</p>
+
+
+<h1>FELIZ NAVIDAD !!</h1>
+
+    <div class="form-container">
+        <input type="text" id="nombre" placeholder="Escribe tu nombre" required>
+        <input type="text" id="gift1" placeholder="Opción 1" required>
+        <input type="text" id="gift2" placeholder="Opción 2" required>
+        <input type="text" id="gift3" placeholder="Opción 3" required>
+        <button onclick="guardarRegalos()">Guardar opciones</button>
+    </div>
+
+    <div class="list-container">
+        <h2>Otras opciones de regalos preferidos</h2>
+        <ul id="listaRegalos"></ul>
+    </div>
+
+    <script>
+        // Verificar si ya hay datos almacenados en el localStorage
+        let regalos = JSON.parse(localStorage.getItem('regalos')) || [];
+
+        // Mostrar los regalos almacenados
+        function mostrarRegalos() {
+            const listaRegalos = document.getElementById('listaRegalos');
+            listaRegalos.innerHTML = '';
+            regalos.forEach(function(regalo, index) {
+                let li = document.createElement('li');
+                li.classList.add('list-item');
+                li.innerHTML = `
+                    ${regalo.nombre}: 1. ${regalo.gift1}, 2. ${regalo.gift2}, 3. ${regalo.gift3} 
+                    <button class="btn" onclick="editarRegalos(${index})">Editar</button>
+                    <button class="btn" onclick="eliminarRegalo(${index})">Eliminar</button>
+                `;
+                listaRegalos.appendChild(li);
+            });
+        }
+
+        // Función para guardar las opciones de regalo
+        function guardarRegalos() {
+            const nombre = document.getElementById('nombre').value;
+            const regalo1 = document.getElementById('gift1').value;
+            const regalo2 = document.getElementById('gift2').value;
+            const regalo3 = document.getElementById('gift3').value;
+
+            if (nombre && regalo1 && regalo2 && regalo3) {
+                // Si no estamos editando, agregar un nuevo regalo
+                if (editingIndex === -1) {
+                    regalos.push({ nombre, gift1: regalo1, gift2: regalo2, gift3: regalo3 });
+                } else {
+                    // Si estamos editando, actualizamos el regalo existente
+                    regalos[editingIndex] = { nombre, gift1: regalo1, gift2: regalo2, gift3: regalo3 };
+                    editingIndex = -1; // Resetear el índice de edición
+                }
+
+                localStorage.setItem('regalos', JSON.stringify(regalos));
+
+                // Limpiar los campos de entrada
+                document.getElementById('nombre').value = '';
+                document.getElementById('gift1').value = '';
+                document.getElementById('gift2').value = '';
+                document.getElementById('gift3').value = '';
+
+                // Actualizar la lista de regalos
+                mostrarRegalos();
+            } else {
+                alert('Por favor, ingresa tu nombre y las tres opciones de regalos.');
+            }
+        }
+
+        // Variable global para mantener el índice de edición
+        let editingIndex = -1;
+
+        // Función para editar los regalos
+        function editarRegalos(index) {
+            const regalo = regalos[index];
+            // Rellenar los campos con los datos existentes
+            document.getElementById('nombre').value = regalo.nombre;
+            document.getElementById('gift1').value = regalo.gift1;
+            document.getElementById('gift2').value = regalo.gift2;
+            document.getElementById('gift3').value = regalo.gift3;
+
+            // Establecer el índice de edición
+            editingIndex = index;
+        }
+
+        // Función para eliminar un regalo
+        function eliminarRegalo(index) {
+            // Confirmar eliminación
+            if (confirm("¿Estás seguro de que quieres eliminar este regalo?")) {
+                regalos.splice(index, 1); // Eliminar el regalo en la posición del índice
+                localStorage.setItem('regalos', JSON.stringify(regalos)); // Actualizar el almacenamiento
+                mostrarRegalos(); // Volver a mostrar la lista actualizada
+            }
+        }
+
+        // Inicializar la lista de regalos cuando se cargue la página
+        mostrarRegalos();
+    </script>
+
+</body>
+</html>
+
